@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Streaks</title>
+<meta name="theme-color" content="#111827">
+<style>
+:root{--bg:#111827;--panel:#1b2437;--line:#2b3650;--tx:#eef2f8;--mut:#93a0b8;--acc:#5eead4;color-scheme:dark}
+@media (prefers-color-scheme:light){:root{--bg:#f3f5f9;--panel:#fff;--line:#dde3ee;--tx:#131a2a;--mut:#5d6b85;--acc:#0f9b8a;color-scheme:light}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Roboto,sans-serif;padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin:0;letter-spacing:-.5px}
+.sub{color:var(--mut);font-size:14px}
+.hero{display:flex;align-items:center;gap:16px;margin:8px 0 18px}
+.ring{width:76px;height:76px;flex:none}
+.ring text{fill:var(--tx);font-weight:700;font-size:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+.row{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:14px;padding:12px;margin-bottom:10px}
+.chk{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--c);background:none;font-size:22px;flex:none;color:#fff}
+.chk.on{background:var(--c)}
+.grow{flex:1;min-width:0}
+.name{font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:13px;color:var(--mut)}
+.ic{background:none;border:0;font-size:18px;padding:8px;color:var(--mut)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:14px 0;border:0;background:none;color:var(--mut);font-weight:600}
+nav button.on{color:var(--acc);box-shadow:inset 0 3px var(--acc)}
+.fab{position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;border:0;background:var(--acc);color:#04201c;font-size:30px;box-shadow:0 6px 18px #0006}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.bar button{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:4px}
+th{font-size:12px;color:var(--mut);font-weight:600}
+th.today{color:var(--acc)}
+td.n{text-align:left;font-size:14px;font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{display:block;width:100%;aspect-ratio:1;min-width:34px;border-radius:10px;border:1.5px solid var(--line);background:none}
+.dot.on{background:var(--c);border-color:var(--c)}
+.dot.off{opacity:.3}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal b{text-align:center;font-size:12px;color:var(--mut)}
+.cell{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--panel);border:1px solid var(--line);color:var(--mut)}
+.cell.on{color:#fff;font-weight:700;border-color:transparent}
+.cell.t{outline:2px solid var(--acc);outline-offset:1px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:6px}
+.chip{flex:none;border:1.5px solid var(--c,var(--line));background:none;border-radius:20px;padding:6px 14px;font-size:14px}
+.chip.on{background:var(--c,var(--acc));color:#fff;border-color:transparent}
+.stat{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:14px;padding:14px;margin-bottom:12px}
+.stat h3{margin:0 0 10px;font-size:17px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.grid4 b{display:block;font-size:22px}
+.grid4 span{font-size:12px;color:var(--mut)}
+.pbar{height:8px;background:var(--line);border-radius:6px;margin-top:12px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--c)}
+.empty{text-align:center;color:var(--mut);padding:50px 20px}
+dialog{border:1px solid var(--line);background:var(--panel);color:var(--tx);border-radius:18px;width:min(92vw,420px);padding:18px}
+dialog::backdrop{background:#000a}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
+input[type=text],input[type=time]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--tx);font:inherit}
+.sw{display:flex;gap:10px;flex-wrap:wrap}
+.sw button{width:34px;height:34px;border-radius:50%;border:3px solid transparent;background:var(--c)}
+.sw button.on{border-color:var(--tx)}
+.days{display:flex;gap:6px}
+.days button{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:none;font-size:13px}
+.days button.on{background:var(--acc);color:#04201c;border-color:transparent;font-weight:700}
+.btns{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.btns button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:none}
+.btns .pri{background:var(--acc);color:#04201c;border:0;font-weight:700}
+.btns .del{color:#f87171}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:9;max-width:90vw}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<button class="fab" id="fab" aria-label="Add habit">+</button>
+<nav id="nav">
+  <button data-v="today">Today</button><button data-v="week">Week</button>
+  <button data-v="month">Month</button><button data-v="stats">Stats</button>
+</nav>
+
+<dialog id="dlg"><div id="form"></div></dialog>
+
+<script>
+const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899'];
+const DN=['S','M','T','W','T','F','S'], DL=['SU','MO','TU','WE','TH','FR','SA'];
+const K='streaks.v1';
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+S=S||{habits:[],fired:{}};
+let view='today',weekOff=0,monthOff=0,sel='all',draft=null;
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('Storage full or blocked')}};
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const dk=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>dk(new Date());
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3500)}
+
+/* ---- stats ---- */
+function cur(h){let d=new Date();if(!h.log[dk(d)])d=addD(d,-1);let n=0;while(h.log[dk(d)]){n++;d=addD(d,-1)}return n}
+function best(h){let b=0,c=0,p=null;for(const k of Object.keys(h.log).sort()){const d=new Date(k+'T00:00');c=p&&Math.round((d-p)/864e5)===1?c+1:1;b=Math.max(b,c);p=d}return b}
+function rate(h,n){const cr=new Date(h.created+'T00:00');let t=0,x=0,d=new Date();for(let i=0;i<n;i++,d=addD(d,-1)){if(d<cr)break;t++;if(h.log[dk(d)])x++}return t?Math.round(x/t*100):0}
+const total=h=>Object.keys(h.log).length;
+function toggle(id,key){const h=S.habits.find(h=>h.id===id);if(!h)return;h.log[key]?delete h.log[key]:h.log[key]=1;save();render();reschedule(h)}
+
+/* ---- render ---- */
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  const el=$('#app');
+  if(!S.habits.length){el.innerHTML='<h1>Streaks</h1><div class="empty">No habits yet.<br>Tap + to add your first one.</div>';return}
+  el.innerHTML=({today:vToday,week:vWeek,month:vMonth,stats:vStats})[view]();
+}
+function vToday(){
+  const t=today(),n=S.habits.length,d=S.habits.filter(h=>h.log[t]).length,p=d/n,R=32,C=2*Math.PI*R;
+  const now=new Date(),msg=d===n?'All done today. Nice work.':`${n-d} left today`;
+  return `<div class="hero"><svg class="ring" viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="38" cy="38" r="${R}" fill="none" stroke="var(--acc)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 38 38)"/><text x="38" y="45" text-anchor="middle">${d}/${n}</text></svg>
+  <div><h1>${now.toLocaleDateString(undefined,{weekday:'long'})}</h1><div class="sub">${now.toLocaleDateString(undefined,{month:'long',day:'numeric'})} · ${msg}</div></div></div>`+
+  S.habits.map(h=>{const s=cur(h);return `<div class="row" style="--c:${h.color}"><button class="chk ${h.log[t]?'on':''}" data-t="${h.id}" aria-label="Toggle ${esc(h.name)}">${h.log[t]?'✓':''}</button>
+  <div class="grow"><div class="name">${esc(h.name)}</div><div class="meta">${s?`🔥 ${s}-day streak`:'No streak yet'}${h.rem&&h.rem.on?` · ⏰ ${h.rem.time}`:''}</div></div>
+  <button class="ic" data-e="${h.id}" aria-label="Edit">✎</button></div>`}).join('');
+}
+function weekStart(off){const d=new Date();d.setHours(0,0,0,0);return addD(d,-d.getDay()+off*7)}
+function vWeek(){
+  const s=weekStart(weekOff),days=[...Array(7)].map((_,i)=>addD(s,i)),t=today(),now=new Date();
+  const lbl=`${s.toLocaleDateString(undefined,{month:'short',day:'numeric'})} – ${days[6].toLocaleDateString(undefined,{month:'short',day:'numeric'})}`;
+  let done=0,poss=0;
+  const rows=S.habits.map(h=>`<tr><td class="n" style="color:${h.color}">${esc(h.name)}</td>`+days.map(d=>{const k=dk(d),fut=d>now,on=!!h.log[k];if(!fut){poss++;if(on)done++}return `<td><button class="dot ${on?'on':''} ${fut?'off':''}" style="--c:${h.color}" ${fut?'disabled':''} data-t="${h.id}" data-k="${k}" aria-label="${esc(h.name)} ${k}"></button></td>`}).join('')+'</tr>').join('');
+  return `<div class="bar"><button data-w="-1">‹</button><div><b>${lbl}</b><div class="sub" style="text-align:center">${poss?Math.round(done/poss*100):0}% completed</div></div><button data-w="1" ${weekOff>=0?'disabled':''}>›</button></div>
+  <div class="scroll"><table><tr><th></th>${days.map(d=>`<th class="${dk(d)===t?'today':''}">${DN[d.getDay()]}<br>${d.getDate()}</th>`).join('')}</tr>${rows}</table></div>`;
+}
+function vMonth(){
+  const now=new Date(),m=new Date(now.getFullYear(),now.getMonth()+monthOff,1),dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate(),t=today();
+  const h1=S.habits.find(h=>h.id===sel);if(!h1)sel='all';
+  const chips=`<div class="chips"><button class="chip ${sel==='all'?'on':''}" data-s="all">All</button>`+S.habits.map(h=>`<button class="chip ${sel===h.id?'on':''}" style="--c:${h.color}" data-s="${h.id}">${esc(h.name)}</button>`).join('')+'</div>';
+  let cells=DN.map(d=>`<b>${d}</b>`).join('')+'<span></span>'.repeat(m.getDay());
+  let hit=0;
+  for(let i=1;i<=dim;i++){const k=dk(new Date(m.getFullYear(),m.getMonth(),i));let a=0,c;
+    if(sel==='all'){const n=S.habits.filter(h=>h.log[k]).length;a=n/S.habits.length;c='var(--acc)'}else{const h=S.habits.find(h=>h.id===sel);a=h.log[k]?1:0;c=h.color}
+    if(a)hit++;
+    cells+=`<div class="cell ${a?'on':''} ${k===t?'t':''}" style="${a?`background:${c};opacity:${.35+.65*a}`:''}">${i}</div>`}
+  const h=S.habits.find(h=>h.id===sel);
+  const info=h?`<div class="sub" style="margin-top:12px">${hit} of ${dim} days · 🔥 ${cur(h)} current · 🏆 ${best(h)} best</div>`:`<div class="sub" style="margin-top:12px">Brighter squares mean more habits finished that day.</div>`;
+  return `<div class="bar"><button data-m="-1">‹</button><b>${m.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</b><button data-m="1" ${monthOff>=0?'disabled':''}>›</button></div>${chips}<div class="cal">${cells}</div>${info}`;
+}
+function vStats(){
+  return '<h1 style="margin-bottom:14px">Stats</h1>'+S.habits.map(h=>`<div class="stat" style="--c:${h.color}"><h3>${esc(h.name)}</h3>
+  <div class="grid4"><div><b>${cur(h)}</b><span>streak</span></div><div><b>${best(h)}</b><span>best</span></div><div><b>${total(h)}</b><span>total</span></div><div><b>${rate(h,30)}%</b><span>30 days</span></div></div>
+  <div class="pbar"><i style="width:${rate(h,3650)}%"></i></div><div class="meta" style="margin-top:6px">${rate(h,7)}% this week · ${rate(h,3650)}% all time</div></div>`).join('');
+}
+
+/* ---- add/edit ---- */
+function openForm(id){
+  const h=S.habits.find(h=>h.id===id);
+  draft=h?JSON.parse(JSON.stringify(h)):{id:'',name:'',color:COLORS[S.habits.length%8],log:{},created:today(),rem:{on:false,time:'08:00',days:[0,1,2,3,4,5,6]}};
+  if(!draft.rem)draft.rem={on:false,time:'08:00',days:[0,1,2,3,4,5,6]};
+  drawForm();$('#dlg').showModal();
+}
+function drawForm(){
+  const r=draft.rem;
+  $('#form').innerHTML=`<h2 style="margin:0">${draft.id?'Edit habit':'New habit'}</h2>
+  <label>Name</label><input type="text" id="fn" maxlength="60" value="${esc(draft.name)}" placeholder="e.g. Read 20 pages">
+  <label>Color</label><div class="sw">${COLORS.map(c=>`<button style="--c:${c}" class="${c===draft.color?'on':''}" data-c="${c}" aria-label="${c}"></button>`).join('')}</div>
+  <label>Reminder</label><div class="days"><button class="${r.on?'on':''}" data-r="on">${r.on?'On':'Off'}</button></div>
+  ${r.on?`<label>Time</label><input type="time" id="ft" value="${r.time}">
+  <label>Days</label><div class="days">${DN.map((d,i)=>`<button class="${r.days.includes(i)?'on':''}" data-d="${i}">${d}</button>`).join('')}</div>
+  <div class="btns"><button data-a="test">🔔 Send test alarm</button></div>
+  <div class="note">Android schedules these alarms itself. Each one repeats 2 more times, 10 minutes apart, until you check the habit off. Set this app's battery usage to Unrestricted, and open the app at least once a week to refresh upcoming alarms.</div>`:''}
+  <div class="btns"><button id="fc">Cancel</button>${draft.id?'<button class="del" id="fd">Delete</button>':''}<button class="pri" id="fs">Save</button></div>`;
+}
+function readForm(){const n=$('#fn');if(n)draft.name=n.value.trim();const t=$('#ft');if(t&&t.value)draft.rem.time=t.value}
+$('#form').addEventListener('click',async e=>{
+  const b=e.target.closest('button');if(!b)return;readForm();
+  if(b.dataset.c){draft.color=b.dataset.c;drawForm()}
+  else if(b.dataset.r){draft.rem.on=!draft.rem.on;if(draft.rem.on)await askPerm();drawForm()}
+  else if(b.dataset.d!==undefined){const i=+b.dataset.d,a=draft.rem.days;a.includes(i)?a.splice(a.indexOf(i),1):a.push(i);drawForm()}
+  else if(b.dataset.a==='test')testNotif();
+  else if(b.id==='fc')$('#dlg').close();
+  else if(b.id==='fd'){if(confirm('Delete this habit and its history?')){S.habits=S.habits.filter(h=>h.id!==draft.id);if(LN)LN.cancel({notifications:allIds(draft)});save();$('#dlg').close();render()}}
+  else if(b.id==='fs'){
+    if(!draft.name)return toast('Give your habit a name');
+    if(draft.id){S.habits=S.habits.map(h=>h.id===draft.id?draft:h)}else{draft.id='h'+Date.now().toString(36);S.habits.push(draft)}
+    nidOf(draft);save();$('#dlg').close();render();reschedule(draft);
+  }
+});
+
+/* ---- events ---- */
+$('#fab').onclick=()=>openForm();
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(b){view=b.dataset.v;render();scrollTo(0,0)}};
+$('#app').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.t)toggle(b.dataset.t,b.dataset.k||today());
+  else if(b.dataset.e)openForm(b.dataset.e);
+  else if(b.dataset.w){weekOff=Math.min(0,weekOff+ +b.dataset.w);render()}
+  else if(b.dataset.m){monthOff=Math.min(0,monthOff+ +b.dataset.m);render()}
+  else if(b.dataset.s){sel=b.dataset.s;render()}
+};
+
+/* ---- native alarms (Capacitor Local Notifications) ---- */
+const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
+const DAYS_AHEAD=10,OFFS=[0,10,20];
+const nidOf=h=>{if(!h.nid){h.nid=Math.floor(Math.random()*9e5)+1e5;save()}return h.nid};
+const allIds=h=>{const a=[];for(let i=0;i<DAYS_AHEAD;i++)for(let k=0;k<3;k++)a.push({id:nidOf(h)*1000+i*10+k});return a};
+async function askPerm(){
+  if(!LN)return toast('Alarms only work in the installed Android app');
+  try{const p=await LN.requestPermissions();if(p.display!=='granted')toast('Notifications are blocked. Enable them in Android Settings.');
+    try{const e=await LN.checkExactNotificationSetting();if(e.exact_alarm!=='granted')await LN.changeExactNotificationSetting()}catch(_){}
+  }catch(e){toast('Could not ask for permission')}
+}
+async function reschedule(h){
+  if(!LN)return;
+  try{
+    await LN.cancel({notifications:allIds(h)});
+    if(!h.rem||!h.rem.on||!h.rem.days.length)return;
+    const now=new Date(),[hh,mm]=h.rem.time.split(':').map(Number),list=[];
+    for(let i=0;i<DAYS_AHEAD;i++){
+      const d=addD(now,i);if(!h.rem.days.includes(d.getDay()))continue;
+      if(i===0&&h.log[today()])continue;
+      OFFS.forEach((o,k)=>{const at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mm+o,0);
+        if(at>now)list.push({id:h.nid*1000+i*10+k,title:k?'Still pending: '+h.name:'⏰ '+h.name,body:k?'You haven’t checked this off yet.':'Time for your habit.',schedule:{at,allowWhileIdle:true},channelId:'habits',actionTypeId:'HABIT',extra:{hid:h.id}})});
+    }
+    if(list.length)await LN.schedule({notifications:list});
+  }catch(e){console.error(e)}
+}
+const rescheduleAll=()=>S.habits.forEach(reschedule);
+async function testNotif(){
+  await askPerm();
+  try{await LN.schedule({notifications:[{id:999999999,title:'⏰ Test alarm',body:'Alarms are working.',schedule:{at:new Date(Date.now()+5000),allowWhileIdle:true},channelId:'habits'}]});toast('Test arrives in 5 seconds. Lock your phone to try it.')}catch(e){toast('Test failed')}
+}
+if(LN){
+  LN.createChannel({id:'habits',name:'Habit reminders',description:'Daily habit alarms',importance:5,visibility:1,vibration:true,lights:true}).catch(()=>{});
+  LN.registerActionTypes({types:[{id:'HABIT',actions:[{id:'done',title:'Mark done',foreground:true}]}]}).catch(()=>{});
+  LN.addListener('localNotificationActionPerformed',e=>{const hid=e.notification.extra&&e.notification.extra.hid;
+    if(e.actionId==='done'&&hid){const h=S.habits.find(h=>h.id===hid);if(h&&!h.log[today()])toggle(hid,today())}});
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();rescheduleAll()}});
+render();rescheduleAll();
+</script>
+</body>
+</html>

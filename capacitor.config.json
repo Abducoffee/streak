@@ -1,0 +1,6 @@
+{
+  "appId": "com.streaks.habits",
+  "appName": "Streaks",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}
